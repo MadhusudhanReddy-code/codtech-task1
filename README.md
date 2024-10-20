@@ -20,32 +20,41 @@ Objective:
 Create a simple command-line calculator that performs basic arithmetic operations: addition, subtraction, multiplication, and division.
 
 Features:
+
 User Input:
 
 Prompt the user to enter two numbers.
 Ask the user to select an operation (add, subtract, multiply, divide).
+
 Operations:
 
 Perform the chosen arithmetic operation on the two numbers.
 Handle basic validation (e.g., check for valid numbers, prevent division by zero).
+
 Output:
 
 Display the result of the operation to the user.
 Include messages for invalid input and operations.
+
 Implementation Steps:
+
 Setup:
 
 Create a Python script file (e.g., calculator.py).
+
 Function Definitions:
 
 Define functions for each operation: add(), subtract(), multiply(), divide().
+
 User Interaction:
 
 Use input() to get numbers and operation choice from the user.
 Convert input strings to appropriate data types (e.g., float for numbers).
+
 Error Handling:
 
 Use try-except blocks to manage invalid input and division by zero.
+
 Display Result:
 
 Print the result in a user-friendly format.
