@@ -58,7 +58,11 @@ Use try-except blocks to manage invalid input and division by zero.
 Display Result:
 
 Print the result in a user-friendly format.
+
 Example Code:
+
 Here's a basic implementation of the calculator:
+
 Conclusion:
+
 This basic calculator provides fundamental functionality for arithmetic operations and can be expanded with additional features (e.g., more complex calculations, a graphical user interface) in the future. The project serves as an excellent introduction to Python programming, user input handling, and error management.
