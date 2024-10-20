@@ -1,7 +1,5 @@
 Name:K.Madhusudhan Reddy
-
 Company:CODTECH IT SOLUTIONS
-
 ID:CT12DS2663
 
 Domain:Python Programming
@@ -9,6 +7,8 @@ Domain:Python Programming
 Duration:OCTOBER TO DECEMBER
 
 Mentor:Neela Santhosh Kumar
+
+
 
 
 Project Overview: Basic Calculator
