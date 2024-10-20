@@ -12,7 +12,9 @@ Mentor:Neela Santhosh Kumar
 
 
 Project Overview: Basic Calculator
+
 Objective:
+
 Create a simple command-line calculator that performs basic arithmetic operations: addition, subtraction, multiplication, and division.
 
 Features:
