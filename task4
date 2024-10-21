@@ -1,0 +1,121 @@
+/* LIBRARY MANAGEMENT SYSTEM */
+
+import datetime
+
+class LibraryItem:
+    def __init__(self, title, author, category, item_type):
+        self.title = title
+        self.author = author
+        self.category = category
+        self.item_type = item_type
+        self.is_checked_out = False
+        self.due_date = None
+
+    def __str__(self):
+        return f"{self.item_type} - Title: {self.title}, Author: {self.author}, Category: {self.category}, Available: {not self.is_checked_out}"
+
+class Library:
+    def __init__(self):
+        self.items = []
+        self.checkout_log = {}
+        self.fine_per_day = 1.0
+
+    def add_item(self, title, author, category, item_type):
+        item = LibraryItem(title, author, category, item_type)
+        self.items.append(item)
+        print(f"Added new {item_type}: {title}")
+
+    def search_items(self, keyword):
+        results = [item for item in self.items if keyword.lower() in item.title.lower() or keyword.lower() in item.author.lower() or keyword.lower() in item.category.lower()]
+        if results:
+            print("\nSearch Results:")
+            for item in results:
+                print(item)
+        else:
+            print("\nNo items found.")
+
+    def check_out_item(self, title):
+        item = next((item for item in self.items if item.title.lower() == title.lower() and not item.is_checked_out), None)
+        if item:
+            item.is_checked_out = True
+            item.due_date = datetime.date.today() + datetime.timedelta(days=14)  # 2-week borrowing period
+            self.checkout_log[item.title] = item.due_date
+            print(f"Checked out '{item.title}'. Due on {item.due_date}.")
+        else:
+            print(f"Item '{title}' is either not available or does not exist.")
+
+    def return_item(self, title):
+        item = next((item for item in self.items if item.title.lower() == title.lower() and item.is_checked_out), None)
+        if item:
+            overdue_days = (datetime.date.today() - item.due_date).days
+            if overdue_days > 0:
+                fine = overdue_days * self.fine_per_day
+                print(f"'{item.title}' is overdue by {overdue_days} days. Fine: ${fine:.2f}")
+            else:
+                print(f"'{item.title}' returned on time. No fines.")
+            item.is_checked_out = False
+            item.due_date = None
+            del self.checkout_log[item.title]
+        else:
+            print(f"Item '{title}' is either not checked out or does not exist.")
+
+    def manage_overdue_fines(self):
+        today = datetime.date.today()
+        print("\nOverdue Items:")
+        for title, due_date in self.checkout_log.items():
+            if today > due_date:
+                overdue_days = (today - due_date).days
+                fine = overdue_days * self.fine_per_day
+                print(f"'{title}' is overdue by {overdue_days} days. Fine: ${fine:.2f}")
+
+    def display_inventory(self):
+        print("\nLibrary Inventory:")
+        if not self.items:
+            print("No items in the library.")
+        for item in self.items:
+            print(item)
+
+
+# Main program to interact with the user
+def main():
+    library = Library()
+
+    while True:
+        print("\nLibrary Menu:")
+        print("1. Add New Item")
+        print("2. Search Items")
+        print("3. Check Out Item")
+        print("4. Return Item")
+        print("5. Manage Overdue Fines")
+        print("6. Display Library Inventory")
+        print("7. Exit")
+
+        choice = input("Choose an option: ")
+
+        if choice == '1':
+            title = input("Enter title: ")
+            author = input("Enter author: ")
+            category = input("Enter category: ")
+            item_type = input("Enter item type (Book, Magazine, DVD): ")
+            library.add_item(title, author, category, item_type)
+        elif choice == '2':
+            keyword = input("Enter keyword to search (title, author, or category): ")
+            library.search_items(keyword)
+        elif choice == '3':
+            title = input("Enter the title of the item to check out: ")
+            library.check_out_item(title)
+        elif choice == '4':
+            title = input("Enter the title of the item to return: ")
+            library.return_item(title)
+        elif choice == '5':
+            library.manage_overdue_fines()
+        elif choice == '6':
+            library.display_inventory()
+        elif choice == '7':
+            print("Exiting the program.")
+            break
+        else:
+            print("Invalid option. Please choose again.")
+
+if __name__ == "__main__":
+    main()
