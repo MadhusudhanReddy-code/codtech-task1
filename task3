@@ -1,0 +1,189 @@
+/* INVENTORY MANAGEMENT SYSTEM */
+
+
+import tkinter as tk
+from tkinter import messagebox, simpledialog
+import hashlib
+
+# Sample users for authentication
+USERS = {
+    "admin": hashlib.sha256("admin123".encode()).hexdigest(),
+}
+
+class InventoryManager:
+    def __init__(self):
+        self.inventory = {}
+        self.sales = []
+
+    def add_product(self, name, price, quantity):
+        if name in self.inventory:
+            messagebox.showinfo("Error", f"Product '{name}' already exists.")
+        else:
+            self.inventory[name] = {"price": price, "quantity": quantity}
+            messagebox.showinfo("Success", f"Product '{name}' added successfully!")
+
+    def edit_product(self, name, price, quantity):
+        if name in self.inventory:
+            self.inventory[name] = {"price": price, "quantity": quantity}
+            messagebox.showinfo("Success", f"Product '{name}' updated successfully!")
+        else:
+            messagebox.showinfo("Error", f"Product '{name}' does not exist.")
+
+    def delete_product(self, name):
+        if name in self.inventory:
+            del self.inventory[name]
+            messagebox.showinfo("Success", f"Product '{name}' deleted successfully!")
+        else:
+            messagebox.showinfo("Error", f"Product '{name}' does not exist.")
+
+    def track_inventory(self):
+        low_stock_products = [name for name, details in self.inventory.items() if details["quantity"] < 5]
+        if low_stock_products:
+            messagebox.showinfo("Low Stock Alert", f"Low stock for: {', '.join(low_stock_products)}")
+        else:
+            messagebox.showinfo("Low Stock Alert", "All products are well stocked.")
+
+    def sell_product(self, name, quantity):
+        if name in self.inventory:
+            if self.inventory[name]["quantity"] >= quantity:
+                self.inventory[name]["quantity"] -= quantity
+                self.sales.append({"product": name, "quantity": quantity, "total_price": quantity * self.inventory[name]["price"]})
+                messagebox.showinfo("Success", f"Sold {quantity} of '{name}'")
+            else:
+                messagebox.showinfo("Error", f"Not enough stock of '{name}'. Only {self.inventory[name]['quantity']} left.")
+        else:
+            messagebox.showinfo("Error", f"Product '{name}' does not exist.")
+
+    def generate_sales_summary(self):
+        if not self.sales:
+            messagebox.showinfo("Sales Summary", "No sales have been made yet.")
+            return
+
+        summary = ""
+        total_sales = 0
+        for sale in self.sales:
+            summary += f"Product: {sale['product']}, Quantity: {sale['quantity']}, Total: ${sale['total_price']:.2f}\n"
+            total_sales += sale['total_price']
+
+        summary += f"\nTotal Sales: ${total_sales:.2f}"
+        messagebox.showinfo("Sales Summary", summary)
+
+
+class InventoryApp:
+    def __init__(self, root):
+        self.manager = InventoryManager()
+
+        self.root = root
+        self.root.title("Inventory Management System")
+
+        self.frame_login()
+
+    def frame_login(self):
+        """User authentication frame"""
+        self.clear_frame()
+
+        self.lbl_user = tk.Label(self.root, text="Username:")
+        self.lbl_user.pack()
+        self.entry_user = tk.Entry(self.root)
+        self.entry_user.pack()
+
+        self.lbl_pass = tk.Label(self.root, text="Password:")
+        self.lbl_pass.pack()
+        self.entry_pass = tk.Entry(self.root, show="*")
+        self.entry_pass.pack()
+
+        self.btn_login = tk.Button(self.root, text="Login", command=self.authenticate_user)
+        self.btn_login.pack()
+
+    def authenticate_user(self):
+        username = self.entry_user.get()
+        password = self.entry_pass.get()
+        hashed_password = hashlib.sha256(password.encode()).hexdigest()
+
+        if username in USERS and USERS[username] == hashed_password:
+            self.frame_main_menu()
+        else:
+            messagebox.showinfo("Error", "Invalid username or password!")
+
+    def frame_main_menu(self):
+        """Main menu frame"""
+        self.clear_frame()
+
+        self.lbl_welcome = tk.Label(self.root, text="Inventory Management", font=("Arial", 16))
+        self.lbl_welcome.pack()
+
+        tk.Button(self.root, text="Add Product", command=self.frame_add_product).pack()
+        tk.Button(self.root, text="Edit Product", command=self.frame_edit_product).pack()
+        tk.Button(self.root, text="Delete Product", command=self.frame_delete_product).pack()
+        tk.Button(self.root, text="Track Inventory", command=self.manager.track_inventory).pack()
+        tk.Button(self.root, text="Sell Product", command=self.frame_sell_product).pack()
+        tk.Button(self.root, text="Sales Summary", command=self.manager.generate_sales_summary).pack()
+        tk.Button(self.root, text="Logout", command=self.frame_login).pack()
+
+    def frame_add_product(self):
+        self.product_action_frame("Add", self.manager.add_product)
+
+    def frame_edit_product(self):
+        self.product_action_frame("Edit", self.manager.edit_product)
+
+    def frame_delete_product(self):
+        name = simpledialog.askstring("Delete Product", "Enter product name:")
+        if name:
+            self.manager.delete_product(name)
+
+    def frame_sell_product(self):
+        name = simpledialog.askstring("Sell Product", "Enter product name:")
+        if name:
+            quantity = simpledialog.askinteger("Sell Product", f"Enter quantity to sell for '{name}':")
+            if quantity:
+                self.manager.sell_product(name, quantity)
+
+    def product_action_frame(self, action, action_function):
+        """Generic frame for adding and editing products"""
+        self.clear_frame()
+
+        self.lbl_name = tk.Label(self.root, text="Product Name:")
+        self.lbl_name.pack()
+        self.entry_name = tk.Entry(self.root)
+        self.entry_name.pack()
+
+        self.lbl_price = tk.Label(self.root, text="Product Price:")
+        self.lbl_price.pack()
+        self.entry_price = tk.Entry(self.root)
+        self.entry_price.pack()
+
+        self.lbl_quantity = tk.Label(self.root, text="Product Quantity:")
+        self.lbl_quantity.pack()
+        self.entry_quantity = tk.Entry(self.root)
+        self.entry_quantity.pack()
+
+        def on_submit():
+            name = self.entry_name.get()
+            try:
+                price = float(self.entry_price.get())
+                quantity = int(self.entry_quantity.get())
+                if price >= 0 and quantity >= 0:
+                    action_function(name, price, quantity)
+                    self.frame_main_menu()
+                else:
+                    messagebox.showinfo("Error", "Price and quantity must be non-negative.")
+            except ValueError:
+                messagebox.showinfo("Error", "Invalid price or quantity.")
+
+        self.btn_submit = tk.Button(self.root, text=f"{action} Product", command=on_submit)
+        self.btn_submit.pack()
+
+        self.btn_back = tk.Button(self.root, text="Back", command=self.frame_main_menu)
+        self.btn_back.pack()
+
+    def clear_frame(self):
+        """Clear all widgets in the frame"""
+        for widget in self.root.winfo_children():
+            widget.destroy()
+
+
+# Main application entry point
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = InventoryApp(root)
+    root.mainloop()
